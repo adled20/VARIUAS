@@ -101,36 +101,94 @@
             </nav>
         </div>
        
-
+    <button class="btn btn-success">Crear Potrero</button>
         <table id="example" class="mdl-data-table" style="width:100%">
         <thead>
             <tr>
-                <th>First name</th>
-                <th>Last name</th>
-                <th>Position</th>
-                <th>Office</th>
-                <th>Salary</th>
+                <th>Id potrero</th>
+                <th>Nombre</th>
+                <th>Vacas totales</th>
+                <th>Vacas preñadas</th>
+                <th>Vacas enfermas</th>
+                <th>Alimento Asignado</th>
+                <th>Editar</th>
+                <th>Borrar</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>Tiger</td>
-                <td>Nixon</td>
-                <td>System Architect</td>
-                <td>Edinburgh</td>
-                <td>320800</td>
-            </tr>
-            <tr>
-                <td>Garrett</td>
-                <td>Winters</td>
-                <td>Accountant</td>
-                <td>Tokyo</td>
-                <td>170750</td>
+                <td>id</td>
+                <td>Nombre</td>
+                <td>vacas</td>
+                <td>preñasdas</td>
+                <td>enfermas</td>
+                <td>Alimento</td>
+                <td><button class="btn btn-primary" onclick="BuscarPotrero('<?=$a->id?>')">Editar</button></td>
+                <td><button class="btn btn-warning" onclick="BorrarPotrero('<?=$a->id?>')">Editar</button></td>
             </tr>
             </tbody>
             </table>
     </div>
+    <script>
+        function BuscarPotrero(id) {
+            IdPtrero = id;
+                    var parametros = {
+                        "IdPotrero": id,
+                        "apellido": "hurtado",
+                        "telefono": "123456789"
+                    };
+                    $.ajax({
+                        data: parametros,
+                        url: '../php/ajax/BuscarVaca.php',
+                        type: 'POST',
 
+                        beforeSend: function () {
+                            $('#ID_Mostrar_infor').html("Mensjae antes de enviar");
+
+                        },
+                        success: function (response) {
+                            // Insertar el modal en el body
+                            $('body').append(response);
+                            // Mostrar el modal
+                            $('#ModalActualizar').modal('show');
+
+                            // Limpiar el modal después de cerrarlo
+                            $('#ModalActualizar').on('hidden.bs.modal', function () {
+                                $(this).remove(); // Eliminar el modal del DOM
+                            });
+                        }
+                    });
+                }
+                function BorrarPotrero(id) {
+            IdPtrero = id;
+                    var parametros = {
+                        "IdPotrero": id,
+                        "apellido": "hurtado",
+                        "telefono": "123456789"
+                    };
+                    $.ajax({
+                        data: parametros,
+                        url: '../php/ajax/BorrarPotrero.php',
+                        type: 'POST',
+
+                        beforeSend: function () {
+                            $('#ID_Mostrar_infor').html("Mensjae antes de enviar");
+
+                        },
+                        success: function (response) {
+                            // Insertar el modal en el body
+                            $('body').append(response);
+                            // Mostrar el modal
+                            $('#ModalActualizar').modal('show');
+
+                            // Limpiar el modal después de cerrarlo
+                            $('#ModalActualizar').on('hidden.bs.modal', function () {
+                                $(this).remove(); // Eliminar el modal del DOM
+                            });
+                        }
+                    });
+                }
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
   $(document).ready( function () {
