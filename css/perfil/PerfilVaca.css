@@ -1,0 +1,36 @@
+#Informacion div{
+width: 50%;
+
+}
+.Buscar{
+    width: 60%;
+
+}
+
+.imag{
+    width: 160px !important;
+    height: 180px;
+   
+}
+
+.imag img{
+    width: 0;
+    flex-grow: 1;
+    object-fit: cover;
+}
+.Contenedor{
+    width: 100% !important;
+    
+    align-items: flex-end;
+}
+
+.botones{
+    margin-right: 5px;
+  height: 40px;
+}
+
+
+.scroll{
+    max-height: 200px !important;
+    overflow-y: auto;
+}
