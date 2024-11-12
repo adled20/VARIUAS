@@ -275,13 +275,14 @@ where potrero.finca_id=
 
     
     while($a = $vacas->fetch_assoc()) {
-        echo "<tr>
-                 <td>".$a["identificacion"]."</td>
-                <td>".$a["nombre"]."</td>
-                <td>".$a["fecha_de_registro_animal"]."</td>
-                <td>".$a["genero"]."</td>
-                <td>".$a["descartada"]."</td>
-                <td>";
+        ?> <tr>
+                 <td><?=$a["identificacion"]?></td>
+                <td><?=$a["nombre"]?></td>
+                <td><?=$a["fecha_de_registro_animal"]?></td>
+                <td><?=$a["genero"]?></td>
+                <td><?=$a["descartada"]?></td>
+                <td>
+                    <?php
                 $sql2= "SELECT raza.nombre as 'nombre de raza' FROM raza
                 where id_raza in(select raza_id_raza from razas_de_la_vaca
                 where vacas_id_animal =$a[id])";
@@ -290,16 +291,16 @@ where potrero.finca_id=
                while ($raza =$razas ->fetch_assoc()) {
                     echo $raza['nombre de raza']."   ";
                     
-                };echo"</td>
-                <td>";
-                echo $a['nombre potrero'];
+                }
                 ?>
+                </td>
+                <td><?= $a['nombre potrero']?>
                 <td><button class="btn btn-primary" onclick="Editar('<?= $a['id'] ?>')">Editar</button></td>
                 <td><button class="btn btn-warning">Eliminar</button></td>
 
-                <?php
-                echo"
-            </tr>";
+                
+            </tr>
+            <?php
     }
     
 

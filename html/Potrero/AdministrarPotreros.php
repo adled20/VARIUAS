@@ -135,10 +135,12 @@
                     $potreros = $conexion->query($sql3);
 
                     while ($a = $potreros->fetch_assoc()) {
-                        echo "<tr>
+                        ?>
+                        <tr>
 
-                        <td>" . $a['nombre de potrero'] . "</td>
-                        <td>" . $a['cantidad'] . "</td>";
+                        <td><?= $a['nombre de potrero'] ?></td>
+                        <td><?= $a['cantidad'] ?></td>
+                        <?php
                         $nombre = $a['nombre de potrero'];
                         $sqlpa1 = "set @embarazadas_potrero = 0";
                         $query_pa1=$conexion->query($sqlpa1);
@@ -151,12 +153,15 @@
                         $sqlpa5 = "select @embarazadas_potrero as embarazadas, @enfermas_potrero as enfermas, @comida_potrero as comida;";
                         $tabla = $conexion->query($sqlpa5);
                         $resultado = $tabla->fetch_assoc();
-                        echo " <td>" . $resultado['embarazadas'] . " </td>";
-                        echo " <td> " . $resultado['enfermas'] . " </td>";
-                        echo " <td> " . $resultado['comida'] . " </td>";
-                        echo " <td> eliminar</td>";
-                        echo " <td> editar </td>";
-                        echo "</tr>";
+                        ?>
+                        <td><?=$resultado['embarazadas']?></td>
+                         <td><?= $resultado['enfermas'] ?></td>
+                         <td><?= $resultado['comida'] ?> </td>
+                         <td> eliminar</td>
+                         <td> editar </td>
+                        </tr>
+
+                        <?php
                     }
 
 
