@@ -8,29 +8,27 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="../css/index.css">
+    <link rel="stylesheet" href="./css/index.css">
 </head>
 <?php
-session_start();
-include 'Conexion.php'; // Conexión a la base de datos
+include 'Conexion.php'; // Incluye la conexión a la base de datos
 
+// Crear un usuario (CREATE)
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $dni = $_POST['dni'];
+    // Recoge los datos del formulario
+    $username = $_POST['username'];
+    $email = $_POST['email'];
     $contra = $_POST['contra'];
+    $dni = $_POST['dni'];
+    
+    // Inserta los datos en la tabla usuario
+    $sql_usuario = "INSERT INTO usuario (dni, usuario, gmail, contra) VALUES ('$dni', '$username', '$email', '$contra')";
 
-    $sql = "SELECT * FROM usuario WHERE dni = '$dni' AND contra = '$contra'";
-    $result = $conexion->query($sql);
-
-    if ($result->num_rows == 1) {
-        $row = $result->fetch_assoc();
-        // Guarda el DNI del usuario en la sesión
-        $_SESSION['dni'] = $row['dni'];
-        $_SESSION['username'] = $row['usuario'];
-        echo "Inicio de sesión exitoso!";
-        header("Location: ver_usuario.php"); // Redirige a la página de usuario
-        exit;
+    if ($conexion->query($sql_usuario) === TRUE) {
+        echo "Usuario registrado exitosamente!";
+        
     } else {
-        echo "DNI o contraseña incorrectos.";
+        echo "Error al registrar el usuario: " . $conexion->error;
     }
 }
 ?>
@@ -40,31 +38,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
      contenedor border rounded-4" id="">
      
         <div class=" border rounded-start-4 texto d-flex flex-column justify-content-center">
-            <h1 class="mx-5">Bienvenido de nuevo</h1>
-            <p class="mx-5">Accede a tu cuenta y gestiona tu software ganadero. Si no tienes una cuenta, ¡regístrate ahora!</p>
+            <h1 class="mx-5">¡Bienvenido!</h1>
+            <p class="mx-5">Gestiona tu software ganadero de manera eficiente. Inicia sesión con tus datos para
+                continuar.</p>
         </div>
         <!-- Input de Nombre -->
         <div class=" border rounded-end-4 registrar d-flex flex-column justify-content-center">
-            <h1 class="mx-5" style="color: rgb(44, 156, 255);">Inicar sesión</h1>
-           
+            <h1 class="mx-5" style="color: rgb(44, 156, 255);">Registrate</h1>
+            <p class="mx-5"><b>Nombre</b></p>
+            <div class="input-group mb-3 inputs mx-5">
+                <span class="input-group-text" id="basic-addon1">@</span>
+                <input type="text" class="form-control" name="username" placeholder="Username" aria-describedby="basic-addon1" required>
+            </div>
             <p class="mx-5"><b>DNI</b></p>
              <!-- Input de DNI -->
             <div class="input-group mb-3 inputs mx-5">
                 <span class="input-group-text" id="basic-addon1">@</span>
                 <input type="Number" name="dni" class="form-control" placeholder="DNI" aria-describedby="basic-addon1" required>
             </div>
-        
+            <p class="mx-5"><b>Correo Electrónico</b></p>
+            <!-- Input de Correo Electronico -->
+            <div class="input-group mb-3 inputs mx-5">
+                <span class="input-group-text" id="basic-addon1">@</span>
+                <input type="email" name="email" class="form-control" placeholder="Email" aria-describedby="basic-addon1" required>
+            </div>
             <p class="mx-5"><b>Contraseña</b></p>
+            <!-- Input de Correo Contraseña -->
             <div class="input-group mb-3 inputs mx-5">
                 <span class="input-group-text" id="basic-addon1">*</span>
                 <input type="password" name="contra" class="form-control" placeholder="Contraseña" aria-describedby="basic-addon1" required>
             </div>
 
-            <button type="submit" class="mx-5 mt-3 btn btn-primary inputs">Iniciar sesión</button>
+            <input type="submit" class="mx-5 mt-3 btn btn-primary inputs"></button>
             <div class="d-flex justify-content-center mx-5 inputs mt-3">
-                <p class=""><a href="">¿Olvidaste tu contraseña?</a><br>¿No tienes una cuenta? <a href="registro.php">Registrate aqui</a></p>
-                
-                
+                <p class="">¿Ya tienes una cuenta? <a href="iniciar_sesion.php">Inicia sesion aqui</a></p>
             </div>
 
 

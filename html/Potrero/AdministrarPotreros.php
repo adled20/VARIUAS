@@ -25,6 +25,10 @@
 </head>
 
 <body>
+    <?php include "../../php/Conexion.php";
+    session_start();
+    $sesion = $_SESSION['dni'];
+    ?>
     <div id="BarraLateral">
         <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark sidebar">
             <span class="fs-4">Sidebar</span>
@@ -100,113 +104,146 @@
                 </div>
             </nav>
         </div>
-       
-    <button class="btn btn-success">Crear Potrero</button>
+
+        <button class="btn btn-success">Crear Potrero</button>
         <table id="example" class="mdl-data-table" style="width:100%">
-        <thead>
-            <tr>
-                <th>Id potrero</th>
-                <th>Nombre</th>
-                <th>Vacas totales</th>
-                <th>Vacas preñadas</th>
-                <th>Vacas enfermas</th>
-                <th>Alimento Asignado</th>
-                <th>Editar</th>
-                <th>Borrar</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>id</td>
-                <td>Nombre</td>
-                <td>vacas</td>
-                <td>preñasdas</td>
-                <td>enfermas</td>
-                <td>Alimento</td>
-                <td><button class="btn btn-primary" onclick="BuscarPotrero('<?=$a->id?>')">Editar</button></td>
-                <td><button class="btn btn-warning" onclick="BorrarPotrero('<?=$a->id?>')">Editar</button></td>
-            </tr>
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Vacas totales</th>
+                    <th>Vacas preñadas</th>
+                    <th>Vacas enfermas</th>
+                    <th>Alimento Asignado</th>
+                    <th>Editar</th>
+                    <th>Borrar</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr style='display: none'>
+                    <td>Nixon</td>
+                    <td>System Architect</td>
+                    <td>Edinburgh</td>
+                    <td>320800</td>
+                    <td>320800</td>
+                    <td>320800</td>
+                    <td>320800</td>
+                </tr>
+                <tr>
+                    <?php
+                    $sql3 = "SELECT count(*) as cantidad ,potrero.nombre as 'nombre de potrero' FROM potrero join vacas on vacas.potrero_id = potrero.id where finca_id in(select id from finca where usuario_dni = $sesion)";
+                    $potreros = $conexion->query($sql3);
+
+                    while ($a = $potreros->fetch_assoc()) {
+                        echo "<tr>
+
+                        <td>" . $a['nombre de potrero'] . "</td>
+                        <td>" . $a['cantidad'] . "</td>";
+                        $nombre = $a['nombre de potrero'];
+                        $sqlpa1 = "set @embarazadas_potrero = 0";
+                        $query_pa1=$conexion->query($sqlpa1);
+                        $sqlpa2="set @enfermas_potrero = 0;";
+                        $query_pa2=$conexion->query($sqlpa2);
+                        $sqlpa3="set @comida_potrero = 0;";
+                        $query_pa3=$conexion->query($sqlpa3);
+                        $sqlpa4="call brftiblxal2dldsiqbzr.tabla_potreros('$nombre'  , @embarazadas_potrero, @enfermas_potrero, @comida_potrero);";
+                        $query_pa4=$conexion->query($sqlpa4);
+                        $sqlpa5 = "select @embarazadas_potrero as embarazadas, @enfermas_potrero as enfermas, @comida_potrero as comida;";
+                        $tabla = $conexion->query($sqlpa5);
+                        $resultado = $tabla->fetch_assoc();
+                        echo " <td>" . $resultado['embarazadas'] . " </td>";
+                        echo " <td> " . $resultado['enfermas'] . " </td>";
+                        echo " <td> " . $resultado['comida'] . " </td>";
+                        echo " <td> eliminar</td>";
+                        echo " <td> editar </td>";
+                        echo "</tr>";
+                    }
+
+
+
+                    ?>
+                </tr>
             </tbody>
-            </table>
+        </table>
     </div>
     <script>
         function BuscarPotrero(id) {
             IdPtrero = id;
-                    var parametros = {
-                        "IdPotrero": id,
-                        "apellido": "hurtado",
-                        "telefono": "123456789"
-                    };
-                    $.ajax({
-                        data: parametros,
-                        url: '../php/ajax/BuscarVaca.php',
-                        type: 'POST',
+            var parametros = {
+                "IdPotrero": id,
+                "apellido": "hurtado",
+                "telefono": "123456789"
+            };
+            $.ajax({
+                data: parametros,
+                url: '../php/ajax/BuscarVaca.php',
+                type: 'POST',
 
-                        beforeSend: function () {
-                            $('#ID_Mostrar_infor').html("Mensjae antes de enviar");
+                beforeSend: function () {
+                    $('#ID_Mostrar_infor').html("Mensjae antes de enviar");
 
-                        },
-                        success: function (response) {
-                            // Insertar el modal en el body
-                            $('body').append(response);
-                            // Mostrar el modal
-                            $('#ModalActualizar').modal('show');
+                },
+                success: function (response) {
+                    // Insertar el modal en el body
+                    $('body').append(response);
+                    // Mostrar el modal
+                    $('#ModalActualizar').modal('show');
 
-                            // Limpiar el modal después de cerrarlo
-                            $('#ModalActualizar').on('hidden.bs.modal', function () {
-                                $(this).remove(); // Eliminar el modal del DOM
-                            });
-                        }
+                    // Limpiar el modal después de cerrarlo
+                    $('#ModalActualizar').on('hidden.bs.modal', function () {
+                        $(this).remove(); // Eliminar el modal del DOM
                     });
                 }
-                function BorrarPotrero(id) {
+            });
+        }
+        function BorrarPotrero(id) {
             IdPtrero = id;
-                    var parametros = {
-                        "IdPotrero": id,
-                        "apellido": "hurtado",
-                        "telefono": "123456789"
-                    };
-                    $.ajax({
-                        data: parametros,
-                        url: '../php/ajax/BorrarPotrero.php',
-                        type: 'POST',
+            var parametros = {
+                "IdPotrero": id,
+                "apellido": "hurtado",
+                "telefono": "123456789"
+            };
+            $.ajax({
+                data: parametros,
+                url: '../php/ajax/BorrarPotrero.php',
+                type: 'POST',
 
-                        beforeSend: function () {
-                            $('#ID_Mostrar_infor').html("Mensjae antes de enviar");
+                beforeSend: function () {
+                    $('#ID_Mostrar_infor').html("Mensjae antes de enviar");
 
-                        },
-                        success: function (response) {
-                            // Insertar el modal en el body
-                            $('body').append(response);
-                            // Mostrar el modal
-                            $('#ModalActualizar').modal('show');
+                },
+                success: function (response) {
+                    // Insertar el modal en el body
+                    $('body').append(response);
+                    // Mostrar el modal
+                    $('#ModalActualizar').modal('show');
 
-                            // Limpiar el modal después de cerrarlo
-                            $('#ModalActualizar').on('hidden.bs.modal', function () {
-                                $(this).remove(); // Eliminar el modal del DOM
-                            });
-                        }
+                    // Limpiar el modal después de cerrarlo
+                    $('#ModalActualizar').on('hidden.bs.modal', function () {
+                        $(this).remove(); // Eliminar el modal del DOM
                     });
                 }
+            });
+        }
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-  $(document).ready( function () {
-    $('#example').DataTable({
-      "language":{
-        "lengthMenu":"Mostrar "+ "<select><option>3</option><option>10</option><option>15</option></select> " +" Registros por página",
-        "zeroRecords":"Nada encontrado - disculpa",
-        "info":"Mostrando la página _PAGE_ de _PAGES_",
-        "infoEmpty":"(Filtrado de _MAX_ registros totales)",
-        "search": "Buscar:",
-        "paginate":{
-          "next":"Siguiente",
-          "previous": "Anterior"
-        }
-      }
-    });
-} );
-</script>
+        $(document).ready(function () {
+            $('#example').DataTable({
+                "language": {
+                    "lengthMenu": "Mostrar " + "<select><option>3</option><option>10</option><option>15</option></select> " + " Registros por página",
+                    "zeroRecords": "Nada encontrado - disculpa",
+                    "info": "Mostrando la página _PAGE_ de _PAGES_",
+                    "infoEmpty": "(Filtrado de _MAX_ registros totales)",
+                    "search": "Buscar:",
+                    "paginate": {
+                        "next": "Siguiente",
+                        "previous": "Anterior"
+                    }
+                }
+            });
+        });
+    </script>
 
 </body>
 

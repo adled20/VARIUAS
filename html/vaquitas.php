@@ -23,6 +23,33 @@
 <body>
     <?php
     include "../php/Conexion.php";
+    session_start();
+    $sesion=$_SESSION['dni'];
+    if (isset($_POST['nombre'])) {
+        $identificacion = $_POST['identificacion'];
+        $nombre = $_POST['nombre'];
+        $fecha_de_registro_animal = $_POST['fecha_de_registro_animal'];
+        $genero = $_POST['genero'];
+        $descartada = $_POST['descartada'];
+        $potrero_id = $_POST['potrero'];
+    
+        $sql = "UPDATE vacas SET 
+                    identificacion='$identificacion', 
+                    nombre='$nombre', 
+                    fecha_de_registro_animal='$fecha_nacimiento', 
+                    peso='$peso', 
+                    estado_salud='$estado_salud',
+                    genero='$genero',
+                    id_raza='$id_raza' 
+                WHERE id_animal=$id";
+    
+        if ($conexion->query($sql) === TRUE) {
+            echo "Actualización exitosa!";
+        } else {
+            echo "Error: " . $sql . "<br>" . $conexion->error;
+        }
+    }
+    
     ?>
     <div id="query" style="display: none;"></div>
     <div id="BarraLateral">
@@ -203,143 +230,166 @@
                         </div>
                     </div>
                 </div>
-             
-                
-                
+
+
+
             </div>
         </div>
         <table id="example" class="mdl-data-table" style="width:100%">
             <?php
-            
-            $vacas=$conexion->query("select v.*, rv.raza_id_raza, r.nombre as nombreraza from vacas v
-join razas_de_la_vaca rv
-on rv.vacas_id_animal=v.id
-join raza r 
-on r.id_raza=rv.raza_id_raza"); ?>
-        <thead>
-            <tr>
-                <th>Identificacion</th>
-                <th>Nombre</th>
-                <th>Genero</th>
-                <th>ID de potrero</th>
-                <th>Raza</th>
-                <th>ID de marcación</th>
-                <th>Editar</th>
-                <th>Eliminar</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr style="display: none">
-                <td>Tiger</td>
-                <td>Nixon</td>
-                <td>System Architect</td>
-                <td>Edinburgh</td>
-                <td>320800</td>
-                <td>320800</td>
-                <td>320800</td>
-                <td>320800</td>
-            </tr>
-            <?php 
-            while ($a = $vacas->fetch_object()) {
-                ?>
+
+
+#potrero
+$vacas = $conexion->query("SELECT vacas.id,vacas.identificacion,vacas.nombre,vacas.fecha_de_registro_animal,vacas.genero,vacas.descartada, potrero.nombre as 'nombre potrero' from vacas join potrero
+on
+potrero.id = vacas.marcacion_id
+
+where potrero.finca_id=
+(select id from finca where usuario_dni = $sesion)"); ?>
+            <thead>
                 <tr>
-                <td><?=$a->identificacion?></td>
-                <td><?=$a->nombre?></td>
-                <td><?=$a->genero?></td>
-                <td><?=$a->potrero_id?></td>
-                <td><?=$a->nombreraza?></td>
-                <td><?=$a->marcacion_id?></td>
-                <td><button class="btn btn-primary" onclick="Editar('<?=$a->id?>')">Editar</button></td>
+                <th>Identificación</th>
+                <th>Nombre</th>
+                <th>Fecha de registro animal</th>
+                <th>Género</th>
+                <th>Descartada</th>
+                <th>Razas</th>
+                <th>Potrero</th>
+                <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style='display: none'>
+                    <td>Tiger</td>
+                    <td>Nixon</td>
+                    <td>System Architect</td>
+                    <td>Edinburgh</td>
+                    <td>320800</td>
+                    <td>320800</td>
+                    <td>320800</td>
+                    <td>320800</td>
+                </tr>
+                <?php
+
+
+
+    
+    while($a = $vacas->fetch_assoc()) {
+        echo "<tr>
+                 <td>".$a["identificacion"]."</td>
+                <td>".$a["nombre"]."</td>
+                <td>".$a["fecha_de_registro_animal"]."</td>
+                <td>".$a["genero"]."</td>
+                <td>".$a["descartada"]."</td>
+                <td>";
+                $sql2= "SELECT raza.nombre as 'nombre de raza' FROM raza
+                where id_raza in(select raza_id_raza from razas_de_la_vaca
+                where vacas_id_animal =$a[id])";
+                
+                $razas = $conexion->query($sql2); 
+               while ($raza =$razas ->fetch_assoc()) {
+                    echo $raza['nombre de raza']."   ";
+                    
+                };echo"</td>
+                <td>";
+                echo $a['nombre potrero'];
+                ?>
+                <td><button class="btn btn-primary" onclick="Editar('<?= $a['id'] ?>')">Editar</button></td>
                 <td><button class="btn btn-warning">Eliminar</button></td>
-            </tr>
-            <?php
-            }
-            ?>
-           
+
+                <?php
+                echo"
+            </tr>";
+    }
+    
+
+
+                ?>
+
             </tbody>
-            </table>
-        </div>
-       
-        <script>
-                function Editar(id) {
-                    IdEjercicio = id;
-                    var parametros = {
-                        "Idvaca": id,
-                        "apellido": "hurtado",
-                        "telefono": "123456789"
-                    };
-                    $.ajax({
-                        data: parametros,
-                        url: '../php/ajax/BuscarVaca.php',
-                        type: 'POST',
+        </table>
+    </div>
 
-                        beforeSend: function () {
-                            $('#ID_Mostrar_infor').html("Mensjae antes de enviar");
+    <script>
+        function Editar(id) {
+            IdEjercicio = id;
+            var parametros = {
+                "Idvaca": id,
+                "apellido": "hurtado",
+                "telefono": "123456789"
+            };
+            $.ajax({
+                data: parametros,
+                url: '../php/ajax/BuscarVaca.php',
+                type: 'POST',
 
-                        },
-                        success: function (response) {
-                            // Insertar el modal en el body
-                            $('body').append(response);
-                            // Mostrar el modal
-                            $('#ModalActualizar').modal('show');
+                beforeSend: function () {
+                    $('#ID_Mostrar_infor').html("Mensjae antes de enviar");
 
-                            // Limpiar el modal después de cerrarlo
-                            $('#ModalActualizar').on('hidden.bs.modal', function () {
-                                $(this).remove(); // Eliminar el modal del DOM
-                            });
-                        }
+                },
+                success: function (response) {
+                    // Insertar el modal en el body
+                    $('body').append(response);
+                    // Mostrar el modal
+                    $('#ModalActualizar').modal('show');
+
+                    // Limpiar el modal después de cerrarlo
+                    $('#ModalActualizar').on('hidden.bs.modal', function () {
+                        $(this).remove(); // Eliminar el modal del DOM
                     });
                 }
-            </script>
+            });
+        }
+    </script>
 
-            <script>
-                $(document).ready(function () {
-                    $('#example').DataTable({
-                        "language": {
-                            "lengthMenu": "Mostrar " + "<select><option>10</option><option>25</option><option>50</option></select> " + " Registros por página",
-                            "zeroRecords": "Nada encontrado - disculpa",
-                            "info": "Mostrando la página _PAGE_ de _PAGES_",
-                            "infoEmpty": "(Filtrado de _MAX_ registros totales)",
-                            "search": "Buscar:",
-                            "paginate": {
-                                "next": "Siguiente",
-                                "previous": "Anterior"
-                            }
-                        }
-                    });
-                });
-            </script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-        <script>
-            function NombreRaza(nombre) {
-                document.getElementById("nom").value = nombre;
-                document.getElementById("EnviarRaza").submit();
-            }
-
-            function BuscarVaca(id) {
-                var IdVaca = document.getElementById("idAct").value;
-                var parametros = {
-                    "Identificacion": IdVaca,
-                    "apellido": "hurtado",
-                    "telefono": "123456789"
-                };
-                $.ajax({
-                    data: parametros,
-                    url: '../php/ajax/BuscarVaca.php',
-                    type: 'POST',
-
-                    beforeSend: function () {
-                        $('#query').html("Mensjae antes de enviar");
-
-                    },
-                    success: function (mensaje_mostrar) {
-                        $('#query').html(mensaje_mostrar);
-
+    <script>
+        $(document).ready(function () {
+            $('#example').DataTable({
+                "language": {
+                    "lengthMenu": "Mostrar " + "<select><option>10</option><option>25</option><option>50</option></select> " + " Registros por página",
+                    "zeroRecords": "Nada encontrado - disculpa",
+                    "info": "Mostrando la página _PAGE_ de _PAGES_",
+                    "infoEmpty": "(Filtrado de _MAX_ registros totales)",
+                    "search": "Buscar:",
+                    "paginate": {
+                        "next": "Siguiente",
+                        "previous": "Anterior"
                     }
-                });
+                }
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function NombreRaza(nombre) {
+            document.getElementById("nom").value = nombre;
+            document.getElementById("EnviarRaza").submit();
+        }
 
-            }
-        </script>
+        function BuscarVaca(id) {
+            var IdVaca = document.getElementById("idAct").value;
+            var parametros = {
+                "Identificacion": IdVaca,
+                "apellido": "hurtado",
+                "telefono": "123456789"
+            };
+            $.ajax({
+                data: parametros,
+                url: '../php/ajax/BuscarVaca.php',
+                type: 'POST',
+
+                beforeSend: function () {
+                    $('#query').html("Mensjae antes de enviar");
+
+                },
+                success: function (mensaje_mostrar) {
+                    $('#query').html(mensaje_mostrar);
+
+                }
+            });
+
+        }
+    </script>
 </body>
 
 </html>

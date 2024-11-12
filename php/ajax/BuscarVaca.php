@@ -1,78 +1,152 @@
 <?php
 include "..//Conexion.php";
-$id=$_POST["Idvaca"];
-$Traervaca=$conexion->query("select v.*, rv.raza_id_raza, r.nombre as nombreraza from vacas v
-join razas_de_la_vaca rv
-on rv.vacas_id_animal=v.id
-join raza r 
-on r.id_raza=rv.raza_id_raza
-where v.id=$id");
-$data=$Traervaca->fetch_object();
-$identificacion=$data->identificacion;
-$raza=$data->nombreraza;
-$fecha=$data->fecha_de_registro_animal;
-$genero=$data->genero;
-$potrero=$data->potrero_id;
+session_start();
+if (isset($_POST['nombre'])) {
+    $identificacion = $_POST['identificacion'];
+    $nombre = $_POST['nombre'];
+    $fecha_de_registro_animal = $_POST['fecha_de_registro_animal'];
+    $genero = $_POST['genero'];
+    $descartada = $_POST['descartada'];
+    $potrero_id = $_POST['potrero'];
+
+    $sql = "UPDATE vacas SET 
+                identificacion='$identificacion', 
+                nombre='$nombre', 
+                fecha_de_registro_animal='$fecha_nacimiento', 
+                peso='$peso', 
+                estado_salud='$estado_salud',
+                genero='$genero',
+                id_raza='$id_raza' 
+            WHERE id_animal=$id";
+
+    if ($conexion->query($sql) === TRUE) {
+        echo "Actualización exitosa!";
+    } else {
+        echo "Error: " . $sql . "<br>" . $conexion->error;
+    }
+}
+
+$sesion=$_SESSION['dni'];
+$id = $_REQUEST['Idvaca'];
+
+$sql2 = "SELECT * FROM marcacion";
+$marcaciones = $conexion->query($sql2);
+$sql3 = "SELECT * FROM potrero where finca_id in(select id from finca where usuario_dni = $sesion)";
+$potreros = $conexion->query($sql3);
+
+$sql = "SELECT * FROM vacas WHERE id=$id";
+$result = $conexion->query($sql);
+$row = $result->fetch_assoc();
+
+$sql4 = "SELECT * FROM potrero where id = $row[potrero_id]";
+$query_potrero_escogido = $conexion->query($sql4);
+$potrero_escogido=$query_potrero_escogido->fetch_assoc();
+
+$sql5 = "SELECT * FROM marcacion where id =$row[marcacion_id]";
+$query_marcacion_escogida = $conexion->query($sql5);
+$marcacion_escogida=$query_marcacion_escogida->fetch_assoc();
+
+$sql1 = "SELECT * FROM raza
+ where id_raza not in(select raza_id_raza from razas_de_la_vaca
+where vacas_id_animal =$row[id]) ";
+$razas = $conexion->query($sql1);
+
+$sql6= "SELECT * FROM raza
+where id_raza in(select raza_id_raza from razas_de_la_vaca
+where vacas_id_animal =$row[id]) ";
+
+$razas_seleccionadas = $conexion->query($sql6); 
+
 
 ?>
- <div class="modal fade" id="ModalActualizar" tabindex="-1" aria-labelledby="exampleModalLabel"
-                            aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollableg">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="exampleModalLabel">Actualizar Vaca</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                            aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <section class="Perfil d-flex">
-                                            <img src="../imagenes/vaca.png" class="ImgPerfil" alt="">
-                                            <div class="DivPerfil">
-                                                <!-- SELECCIONAR RAZA Y NOMBRE -->
-                                                <select name="RazaAct" class="form-select" aria-label="Default select example">
-                                                    <option selected><?=$raza?></option>
-                                                    <option value="1">One</option>
-                                                </select>
-                                                <label for="exampleFormControlInput1" class="form-label">Identificacion del animal</label>
-                                                <input name="idAct" type="text" class="form-control" id="idAct" placeholder="<?=$identificacion?>">
-                                                
-                                            </div>
-                                        </section>
-                                        <!-- INDIVIDUO DE INTERES -->
-                                        <label for="exampleFormControlInput1" class="form-label">Individuo de interes (Opcional)</label>
-                                        <input name="InteresAct" type="text" class="form-control" id="exampleFormControlInput1" placeholder="Individuo de interes">
-                                        <!-- NACIMIENTO -->
-                                        <label for="exampleFormControlInput1" class="form-label">Fecha de nacimiento</label>
-                                        <input name="NacimientoAct" type="Date" class="form-control" id="exampleFormControlInput1" placeholder="<?= $fecha ?>">
-                                        <!-- PESO -->
-                                        <label for="exampleFormControlInput1" class="form-label">Peso de la vaca</label>
-                                        <input name="NacimientoAct" type="number" class="form-control mb-3" id="exampleFormControlInput1" placeholder="Seleccione fecha de nacimiento">
-                                        <!-- GENERO -->
-                                        <select name="GeneroAct" class="form-select mb-3" aria-label="Default select example">
-                                            <option selected><?= $genero ?></option>
-                                            <option value="1">Femenino</option>
-                                            <option value="2">Masculino</option>
-                                        </select>
-                                        <!-- SALUD -->
-                                        <select name="SaludAct" class="form-select mb-3" aria-label="Default select example">
-                                            <option selected>Seleccione el estado de salud</option>
-                                            <option value="1">Femenino</option>
+<div class="modal fade" id="ModalActualizar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollableg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Actualizar Vaca</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+            
+            <form method="POST" action="" id="formulario_actualizacion">
+        identificacion: <input type="text" name="identificacion" value="<?php echo $row['identificacion']; ?>"><br>
+        Nombre: <input type="text" name="nombre" value="<?php echo $row['nombre']; ?>"><br>
+        fecha de registro animal: <input type="date" name="fecha_de_registro_animal" value="<?php echo $row['fecha_de_registro_animal']; ?>"><br>
+        Género: 
+        <select name="genero">
+            <option value="Toro" <?php if($row['genero'] == 'Hembra') echo 'selected'; ?>>Hembra</option>
+            <option value="Vaca" <?php if($row['genero'] == 'Macho') echo 'selected'; ?>>Macho</option>
+        </select><br>
+        Descartada: 
+        <select name="descartada">
+            <option value="Toro" <?php if($row['descartada'] == 'Activa') echo 'selected'; ?>>Activa</option>
+            <option value="Vaca" <?php if($row['descartada'] == 'Descartada') echo 'selected'; ?>>Descartada</option>
+            <option value="Vaca" <?php if($row['descartada'] == 'Vendida') echo 'selected'; ?>>Vendida</option>
+        </select><br>
+        Raza:
+    <?php
+    while ($razas_seleccion = $razas_seleccionadas->fetch_assoc()) {
+        ?>
+        <input checked
+        type="checkbox" name="<?php echo $razas_seleccion['id_raza']; ?>" value="<?php echo $razas_seleccion['id_raza']; ?>">
+        <label for="raza"> <?php echo $razas_seleccion['nombre']; ?></label><br>
+        <?php
+    }
+    while ($raza_input = $razas->fetch_assoc()) {
+        ?>
+        <input
+        type="checkbox" name="<?php echo $raza_input['id_raza']; ?>" value="<?php echo $raza_input['id_raza']; ?>">
+        <label for="raza"> <?php echo $raza_input['nombre']; ?></label><br>
+        <?php
+    }
 
-                                        </select>
-                                        <!-- POTRERO -->
-                                        <select name="PotreroAct" class="form-select" aria-label="Default select example">
-                                            <option selected><?= $potrero ?></option>
-                                            <option value="1">Femenino</option>
+    ?>
+    Marcacion :
+    <select name="marcacion">
+        <?php
+        while ($marcacion = $marcaciones->fetch_assoc()) {
+            ?>
+            <option 
+            <?php if($marcacion['id'] == $marcacion_escogida['id']) echo 'selected';?>
+            value="<?php echo $marcacion['id']; ?>"><?php echo $marcacion['tipo_marcacion']; ?>
+            </option>
+            <?php
+        }
 
-                                        </select>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary"
-                                            data-bs-dismiss="modal">Cerrar</button>
-                                        <button type="button" class="btn btn-primary">ACTUALIZAR VACA</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        ?>
+    </select> <br>
+    potrero:
+    <select name="potrero">
+        <?php
+        while ($potrero = $potreros->fetch_assoc()) {
+
+            ?>
+            <option <?php if($potrero['id'] == $potrero_escogido['id']) echo 'selected'; ?> value="<?php echo $potrero['id'];
+            ?>"><?php echo $potrero['nombre']; ?></option>
+            <?php
+        }
+
+        ?>
+    </select>
+    <br>
+        <input type="submit" value="Actualizar">
+    </form>
+    
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary"  onclick="$(#modalid).form('submit')" >ACTUALIZAR VACA</button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+<script>
+    function edicion() {
+        var dom = document.getElementById('formulario_actualizacion');
+        dom.submit()
+    }
+    
+
+    </script>
