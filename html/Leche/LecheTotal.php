@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-
+<?php
+include "../../php/Conexion.php";
+session_start();
+$sesion = $_SESSION['dni'];
+?>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -94,6 +98,7 @@
         <div id="Grafica" class="mt-5">
             <div id="Contenedor"></div>
             <div>
+
                 <h4>Leche producida por razas en el mes actual</h4>
                 <table class="table table-bordered">
                     <thead>
