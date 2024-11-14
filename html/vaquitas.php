@@ -124,7 +124,7 @@
                                         while ($data = $Razas->fetch_object()) {
                                             ?>
                                             <li><a class="dropdown-item" onclick="NombreRaza('<?= $data->id_raza ?>')"
-                                                    href="#"><?= $data->nombre ?></a></li>
+                                                    href="#" ><?= $data->nombre ?></a></li>
                                             <?php
                                         }
                                         ?>

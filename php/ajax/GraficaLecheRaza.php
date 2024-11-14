@@ -1,4 +1,45 @@
 
+<?php 
+include "../../php/Conexion.php";
+session_start();
+$sesion = $_SESSION['dni'];
+$id_Raza = $_REQUEST["raza"];
+$hoy = date("t");
+$queryleche="SELECT day(fecha),sum(litros_leche) FROM	produccion_lechera
+where Month(fecha) = MOnth(curdate()) and year(fecha)=year(curdate()) and produccion_lechera.vacas_id in (select vacas.id from vacas where 
+vacas.id in(select vacas_id_animal from razas_de_la_vaca where raza_id_raza = $id_Raza) and vacas.potrero_id in
+ (select id from potrero where finca_id =
+ (select id from finca where usuario_dni = $sesion)))
+GROUP BY day(fecha)  ";
+$leche_mensual=$conexion->query($queryleche);
+$total=array();
+while ($leche = $leche_mensual->fetch_assoc()) {
+    $k[$leche["day(fecha)"]]= $leche["sum(litros_leche)"];
+    
+}
+
+for ($i=1; $i < $hoy+1; $i++) { 
+  
+
+if (!(isset($k[$i]))) {
+    array_push($total,0);
+}else{
+    array_push($total,$k[$i]);
+}
+    if (($i==1)||( $i==$hoy)) {
+      
+    }else{
+        
+    }
+}
+?>
+<?php
+$valor="";
+ foreach ($total as $var ) {
+ $valor=$valor.$var.",";
+}
+$rest = substr($valor, 0, -1); 
+?>
 <script>
     var dom = document.getElementById('Grafica');
 var myChart = echarts.init(dom, null, {
@@ -11,19 +52,32 @@ var option;
 
 option = {
     title: {
-        text: "Leche producida por mes",
+        text: "Leche producida por mes ",
         left: "center"
     },
   xAxis: {
     type: 'category',
-    data: Mes
+    data: [<?php
+    for ($i=1; $i < $hoy+1; $i++) { 
+      # code...
+      echo$i;
+        if (( $i==$hoy)) {
+          
+        }else{
+          echo ",";
+        }
+       
+    }
+    ?>]
   },
   yAxis: {
     type: 'value'
   },
   series: [
     {
-      data: Litros,
+      data: [<?php 
+ echo $rest ;
+?>],
       type: 'bar',
       showBackground: true,
       backgroundStyle: {

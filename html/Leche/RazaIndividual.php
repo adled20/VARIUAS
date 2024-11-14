@@ -6,18 +6,34 @@
     <?php
     include "../../php/Conexion.php";
     $NombreRaza = $_POST["raza"];
-
+    session_start();
+$sesion = $_SESSION['dni'];
     $vacas = $conexion->query(
         "SELECT razas_de_la_vaca.raza_id_raza,vacas.identificacion,vacas.nombre,vacas.genero 
     from razas_de_la_vaca
     join vacas 
-    on razas_de_la_vaca.vacas_id_animal=vacas.id where razas_de_la_vaca.raza_id_raza=$NombreRaza"
+    on razas_de_la_vaca.vacas_id_animal=vacas.id where razas_de_la_vaca.raza_id_raza=$NombreRaza AND vacas.potrero_id in
+ (select id from potrero where finca_id =
+ (select id from finca where usuario_dni = $sesion))" 
     );
+$query_de_pa1="set @embarazadas_raza = 0;";
+$query_de_pa2="set @enfermas_raza = 0;";
+$query_de_pa3="set @sana_raza = 0;";
+$query_de_pa4="call brftiblxal2dldsiqbzr.datos_raza($NombreRaza, $sesion, @embarazadas_raza, @enfermas_raza, @sana_raza);";
+$query_de_pa5="select @embarazadas_raza as emb, @enfermas_raza as enf, @sana_raza as sana;";
+$PA1=$conexion->query($query_de_pa1);
+$PA2=$conexion->query($query_de_pa2);
+$PA3=$conexion->query($query_de_pa3);
+$PA4=$conexion->query($query_de_pa4);
+$PA5=$conexion->query($query_de_pa5);
+$datos =$PA5->fetch_assoc();
     $ContarRazas = $conexion->query(
         "SELECT COUNT(*) AS total 
 from razas_de_la_vaca
 join vacas 
-on razas_de_la_vaca.vacas_id_animal=vacas.id where razas_de_la_vaca.raza_id_raza=$NombreRaza"
+on razas_de_la_vaca.vacas_id_animal=vacas.id where razas_de_la_vaca.raza_id_raza=$NombreRaza AND vacas.potrero_id in
+ (select id from potrero where finca_id =
+ (select id from finca where usuario_dni = $sesion))"
     );
     $LecheMensual=$conexion->query("SELECT 
     monthname(pl.fecha) AS mes,               -- Extrae el mes de la fecha
@@ -74,7 +90,7 @@ ORDER BY
             <hr>
             <ul class="nav nav-pills flex-column mb-auto">
                 <li class="nav-item">
-                    <a href="#" class="nav-link active" aria-current="page">Home</a>
+                    <a href="#" class="nav-link active" aria-current="page">Home </a>
                 </li>
                 <li>
                     <a href="#" class="nav-link text-white">Dashboard</a>
@@ -147,11 +163,11 @@ ORDER BY
             <div class="fs-4 ms-4 d-flex flex-column justify-content-center">
                 <p>Total de vacas: <?=$Total->total ?></p>
 
-                <p>Enfermas:</p>
+                <p>Enfermas:<?=$datos["enf"];?></p>
 
-                <p>Sanas:</p>
+                <p>Sanas:<?=$datos["sana"];?></p>
 
-                <p>Embarazadas:</p>
+                <p>Embarazadas: <?=$datos["emb"];?></p>
 
             </div>
             <div id="Grafica" class="">
@@ -246,7 +262,7 @@ if (Mensual.length > 0) {
 }
         function saludame() {
             var parametros = {
-                "nombre": "dostin",
+                "raza": "<?= $_POST['raza']?>",
                 "apellido": "hurtado",
                 "telefono": "123456789"
             };

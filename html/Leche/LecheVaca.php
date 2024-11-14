@@ -1,4 +1,11 @@
 <!DOCTYPE html>
+<?php
+include "../../php/Conexion.php";
+session_start();
+$sesion = $_SESSION['dni'];
+
+
+?>
 <html lang="en">
 
 <head>
@@ -20,6 +27,7 @@
             <span class="fs-4">Sidebar</span>
             <hr>
             <ul class="nav nav-pills flex-column mb-auto">
+                
                 <li class="nav-item">
                     <a href="#" class="nav-link active" aria-current="page">Home</a>
                 </li>
